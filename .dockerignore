@@ -1,0 +1,8 @@
+node_modules
+uploads
+data
+.git
+.gitignore
+.env
+README.md
+LICENSE

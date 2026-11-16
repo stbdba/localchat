@@ -1,0 +1,3117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>{{APP_TITLE}}</title>
+  <style>
+    :root {
+      --brand-navy: #0B3B68;
+      --brand-blue: #0E5A9E;
+      --brand-sky: #0088CC;
+      --brand-sky-light: #E0F2FE;
+      --brand-green: #00A651;
+      --brand-green-light: #DCFCE7;
+      --unread-red: #EF4444;
+      --bg-outer: #072644;
+      --bg-outer-top: #0E4D87;
+      --bg-canvas: #EEF3F8;
+      --surface: #FFFFFF;
+      --surface-elevated: #F8FAFC;
+      --border-soft: #DCE6F1;
+      --border-input: #CBD5E1;
+      --text-main: #0F172A;
+      --text-muted: #52647A;
+      --msg-other-bg: #FFFFFF;
+      --msg-mine-bg: linear-gradient(135deg, #E0F2FE 0%, #BAE6FD 100%);
+      --msg-mine-border: #7DD3FC;
+      --msg-mine-meta: #0369A1;
+      --subbar-bg: #E0F2FE;
+      --subbar-border: #BAE6FD;
+      --subbar-subtext: #0369A1;
+      --qr-bubble-bg: linear-gradient(135deg, #E0F2FE 0%, #DCFCE7 100%);
+      --qr-bubble-border: #7DD3FC;
+      --card-inner-bg: rgba(255, 255, 255, 0.88);
+    }
+
+    :root[data-theme="dark"] {
+      --brand-navy: #E2E8F0;
+      --brand-blue: #38BDF8;
+      --brand-sky: #38BDF8;
+      --brand-sky-light: rgba(56, 189, 248, 0.16);
+      --brand-green: #10B981;
+      --brand-green-light: rgba(16, 185, 129, 0.18);
+      --unread-red: #F87171;
+      --bg-outer: #030712;
+      --bg-outer-top: #0F172A;
+      --bg-canvas: #0B1220;
+      --surface: #131C2E;
+      --surface-elevated: #1B263B;
+      --border-soft: #23314A;
+      --border-input: #2E3F5E;
+      --text-main: #F1F5F9;
+      --text-muted: #94A3B8;
+      --msg-other-bg: #162033;
+      --msg-mine-bg: linear-gradient(135deg, #0C4A6E 0%, #075985 100%);
+      --msg-mine-border: #0284C7;
+      --msg-mine-meta: #BAE6FD;
+      --subbar-bg: #132A46;
+      --subbar-border: #1E4068;
+      --subbar-subtext: #7DD3FC;
+      --qr-bubble-bg: linear-gradient(135deg, #132A46 0%, #0F342A 100%);
+      --qr-bubble-border: #1D4ED8;
+      --card-inner-bg: rgba(15, 23, 42, 0.72);
+    }
+
+    * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, var(--bg-outer-top) 0%, var(--bg-outer) 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100dvh;
+      color: var(--text-main);
+    }
+
+    /* Portrait Frame for Mobile & Desktop */
+    #app-shell {
+      width: 100%;
+      max-width: 480px;
+      height: 100dvh;
+      background: var(--bg-canvas);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    @media (min-width: 520px) {
+      #app-shell {
+        height: 94dvh;
+        border-radius: 28px;
+        box-shadow: 0 24px 60px rgba(0, 10, 25, 0.65);
+        border: 2px solid rgba(255, 255, 255, 0.14);
+      }
+    }
+
+    /* Header */
+    header {
+      background: linear-gradient(135deg, #0B3B68 0%, #0E5A9E 100%);
+      color: #fff;
+      padding: 14px 18px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 14px rgba(11, 59, 104, 0.28);
+      z-index: 25;
+      position: relative;
+    }
+
+    :root[data-theme="dark"] header {
+      background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+      border-bottom: 1px solid #23314A;
+    }
+
+    .brand-wrap { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .brand-emblem {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #00A651 0%, #0088CC 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.28);
+      flex-shrink: 0;
+    }
+    .brand-text { min-width: 0; }
+    .brand-text h1 {
+      margin: 0;
+      font-size: 1.02rem;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #fff;
+    }
+    .brand-text small {
+      display: block;
+      font-size: 0.7rem;
+      color: #BAE6FD;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; position: relative; }
+    .ip-pill {
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 5px 11px;
+      border-radius: 9999px;
+      font-size: 0.74rem;
+      color: #E0F2FE;
+      font-family: monospace;
+      font-weight: 600;
+    }
+    .plus-icon-btn {
+      background: #00A651;
+      color: #fff;
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 166, 81, 0.38);
+      transition: transform 0.12s ease, background 0.15s ease;
+      flex-shrink: 0;
+    }
+    .plus-icon-btn:hover { background: #059669; }
+    .plus-icon-btn:active { transform: scale(0.93); }
+
+    /* Quick Action Menu from + Button */
+    #plus-popover {
+      display: none;
+      position: absolute;
+      top: 46px;
+      right: 0;
+      background: var(--surface);
+      border: 1px solid var(--border-soft);
+      border-radius: 18px;
+      box-shadow: 0 12px 30px rgba(0, 10, 25, 0.35);
+      padding: 7px;
+      min-width: 225px;
+      z-index: 55;
+      flex-direction: column;
+      gap: 4px;
+    }
+    #plus-popover.active { display: flex; }
+    .popover-item {
+      background: transparent;
+      border: none;
+      padding: 10px 13px;
+      border-radius: 12px;
+      text-align: left;
+      font-size: 0.83rem;
+      font-weight: 600;
+      color: var(--brand-navy);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.12s ease;
+    }
+    .popover-item:hover { background: var(--bg-canvas); }
+    .popover-divider {
+      height: 1px;
+      background: var(--border-soft);
+      margin: 2px 6px;
+    }
+    .theme-selector-row {
+      padding: 6px 10px 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .theme-selector-label {
+      font-size: 0.71rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .theme-pills {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      background: var(--bg-canvas);
+      padding: 3px;
+      border-radius: 9999px;
+      gap: 3px;
+    }
+    .theme-opt-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      padding: 5px 6px;
+      border-radius: 9999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .theme-opt-btn.active {
+      background: #0B3B68;
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(11, 59, 104, 0.25);
+    }
+    :root[data-theme="dark"] .theme-opt-btn.active {
+      background: #0284C7;
+      color: #fff;
+    }
+
+    /* Pill Navigation Tabs */
+    .nav-bar-wrap {
+      background: var(--surface);
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border-soft);
+      z-index: 12;
+    }
+    .nav-pills {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      background: var(--bg-canvas);
+      padding: 4px;
+      border-radius: 9999px;
+      gap: 4px;
+    }
+    .nav-tab {
+      border: none;
+      background: transparent;
+      padding: 7px 6px;
+      border-radius: 9999px;
+      font-size: 0.77rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: all 0.18s ease;
+      white-space: nowrap;
+    }
+    .nav-tab.active {
+      background: #0B3B68;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(11, 59, 104, 0.25);
+    }
+    :root[data-theme="dark"] .nav-tab.active {
+      background: #0284C7;
+      color: #fff;
+    }
+    .tab-badge {
+      background: var(--brand-green);
+      color: #fff;
+      font-size: 0.65rem;
+      padding: 1px 6px;
+      border-radius: 9999px;
+      font-weight: 700;
+      min-width: 18px;
+      text-align: center;
+    }
+    .tab-badge.unread {
+      background: var(--unread-red);
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(239, 68, 68, 0.35);
+    }
+    .nav-tab.active .tab-badge:not(.unread) {
+      background: #38BDF8;
+      color: #082F49;
+    }
+
+    /* Sub-header for Active Focused Topic Room */
+    #topic-subbar {
+      display: none;
+      background: var(--subbar-bg);
+      border-bottom: 1px solid var(--subbar-border);
+      padding: 8px 14px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    #topic-subbar.active { display: flex; }
+    .subbar-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .back-pill {
+      background: var(--surface);
+      border: 1px solid var(--subbar-border);
+      color: var(--brand-navy);
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .subbar-title { min-width: 0; }
+    .subbar-title strong {
+      display: block;
+      font-size: 0.86rem;
+      color: var(--brand-navy);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .subbar-title span {
+      display: block;
+      font-size: 0.68rem;
+      color: var(--subbar-subtext);
+    }
+    .manage-pill {
+      background: #0E5A9E;
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      font-size: 0.73rem;
+      font-weight: 600;
+      cursor: pointer;
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Views Container */
+    .view-panel {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .view-panel.active { display: flex; }
+
+    /* Chat Area */
+    #chat-box {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .empty-state {
+      margin: auto;
+      text-align: center;
+      color: var(--text-muted);
+      background: var(--surface);
+      padding: 22px 24px;
+      border-radius: 22px;
+      border: 1px dashed var(--border-input);
+      max-width: 84%;
+      font-size: 0.84rem;
+      line-height: 1.45;
+    }
+
+    .msg {
+      max-width: 84%;
+      padding: 10px 14px;
+      border-radius: 20px 20px 20px 6px;
+      background: var(--msg-other-bg);
+      border: 1px solid var(--border-soft);
+      box-shadow: 0 2px 8px rgba(11, 59, 104, 0.06);
+      align-self: flex-start;
+      position: relative;
+    }
+    .msg.mine {
+      background: var(--msg-mine-bg);
+      border-color: var(--msg-mine-border);
+      align-self: flex-end;
+      border-radius: 20px 20px 6px 20px;
+    }
+    .msg-header {
+      font-size: 0.69rem;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+      font-family: monospace;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+    }
+    .msg.mine .msg-header { color: var(--msg-mine-meta); }
+    .sender-identity {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+    }
+    .sender-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.7);
+    }
+    .msg-meta-right {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    /* Message Bubble Downward Chevron Dropdown */
+    .msg-menu-btn {
+      background: rgba(128, 128, 128, 0.14);
+      border: none;
+      color: inherit;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
+      transition: background 0.15s ease;
+    }
+    .msg-menu-btn:hover { background: rgba(128, 128, 128, 0.25); }
+
+    .msg-dropdown {
+      display: none;
+      position: absolute;
+      top: 26px;
+      right: 0;
+      background: var(--surface);
+      border: 1px solid var(--border-soft);
+      border-radius: 14px;
+      box-shadow: 0 10px 25px rgba(0, 10, 25, 0.32);
+      padding: 5px;
+      min-width: 145px;
+      z-index: 40;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .msg-dropdown.active { display: flex; }
+    .msg-dropdown-item {
+      background: transparent;
+      border: none;
+      padding: 8px 11px;
+      border-radius: 10px;
+      text-align: left;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--brand-navy);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      text-decoration: none;
+      transition: background 0.12s ease;
+    }
+    .msg-dropdown-item:hover { background: var(--bg-canvas); }
+    .msg-dropdown-item.danger { color: #EF4444; }
+    .msg-dropdown-item.danger:hover { background: rgba(239, 68, 68, 0.12); }
+
+    .msg-text {
+      margin: 0;
+      font-size: 0.91rem;
+      line-height: 1.42;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: var(--text-main);
+    }
+    .msg.mine .msg-text { color: #0F172A; }
+    :root[data-theme="dark"] .msg.mine .msg-text { color: #F8FAFC; }
+    .msg-text a {
+      color: var(--brand-blue);
+      text-decoration: underline;
+      font-weight: 600;
+    }
+    :root[data-theme="dark"] .msg.mine .msg-text a { color: #7DD3FC; }
+
+    .read-more-btn {
+      margin-top: 7px;
+      background: rgba(128, 128, 128, 0.14);
+      border: 1px solid rgba(128, 128, 128, 0.22);
+      color: var(--brand-navy);
+      padding: 5px 12px;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .read-more-btn:hover { background: rgba(128, 128, 128, 0.22); }
+
+    /* Image Attachment Card */
+    .wa-image-card {
+      margin-top: 6px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--border-soft);
+      background: var(--card-inner-bg);
+      display: flex;
+      flex-direction: column;
+    }
+    .wa-image-preview {
+      width: 100%;
+      max-height: 240px;
+      object-fit: cover;
+      display: block;
+      cursor: zoom-in;
+      background: #1E293B;
+    }
+    .wa-image-footer {
+      padding: 7px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: var(--card-inner-bg);
+    }
+    .wa-image-meta { min-width: 0; flex: 1; }
+    .wa-image-name {
+      display: block;
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--brand-navy);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .wa-image-size {
+      display: block;
+      font-size: 0.67rem;
+      color: var(--text-muted);
+      font-family: monospace;
+    }
+
+    /* Non-Image File Card with Auto Download Button */
+    .file-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 6px;
+      padding: 9px 12px;
+      background: var(--card-inner-bg);
+      border: 1px solid var(--border-soft);
+      border-radius: 14px;
+    }
+    .file-card-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      flex: 1;
+    }
+    .file-card-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: var(--brand-sky-light);
+      color: var(--brand-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .file-card-text { min-width: 0; flex: 1; }
+    .file-card-name {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--brand-navy);
+      word-break: break-all;
+    }
+    .file-card-size {
+      display: block;
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      font-family: monospace;
+    }
+
+    .file-dl-btn {
+      background: #0B3B68;
+      color: #fff;
+      text-decoration: none;
+      padding: 6px 11px;
+      border-radius: 9999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 6px rgba(11, 59, 104, 0.25);
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+    :root[data-theme="dark"] .file-dl-btn { background: #0284C7; }
+    .file-dl-btn:hover { background: #0E5A9E; }
+    .file-dl-btn:active { transform: scale(0.95); }
+
+    /* Link Preview Thumbnail Card */
+    .link-preview-card {
+      display: flex;
+      flex-direction: column;
+      margin-top: 8px;
+      background: var(--card-inner-bg);
+      border: 1px solid var(--border-soft);
+      border-radius: 14px;
+      overflow: hidden;
+      text-decoration: none;
+      color: var(--text-main);
+      transition: border-color 0.15s ease;
+    }
+    .link-preview-card:hover { border-color: var(--brand-sky); }
+    .link-preview-thumb {
+      width: 100%;
+      max-height: 175px;
+      object-fit: cover;
+      background: #1E293B;
+      display: block;
+    }
+    .link-preview-body {
+      padding: 8px 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .link-preview-domain {
+      font-size: 0.67rem;
+      font-weight: 700;
+      color: var(--brand-sky);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .link-preview-title {
+      font-size: 0.81rem;
+      font-weight: 700;
+      color: var(--brand-navy);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .link-preview-desc {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Composer (Chat Footer) */
+    .composer-wrapper {
+      background: var(--surface);
+      border-top: 1px solid var(--border-soft);
+      padding: 9px 14px 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .options-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .ttl-group { display: flex; align-items: center; gap: 6px; }
+    .ttl-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    select.pill-select {
+      padding: 4px 10px;
+      border-radius: 9999px;
+      border: 1px solid var(--border-input);
+      background: var(--bg-canvas);
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--brand-navy);
+      outline: none;
+    }
+    #topic-ttl-notice {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.74rem;
+      color: var(--brand-blue);
+      font-weight: 600;
+    }
+    .link-btn {
+      background: none;
+      border: none;
+      color: var(--brand-green);
+      font-weight: 700;
+      text-decoration: underline;
+      cursor: pointer;
+      padding: 0;
+      font-size: 0.74rem;
+    }
+
+    /* Live Link Thumbnail Preview while typing */
+    #composer-link-preview {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: var(--bg-canvas);
+      border: 1px solid var(--border-soft);
+      border-radius: 16px;
+      padding: 7px 10px;
+    }
+    #composer-link-preview.active { display: flex; }
+    .clp-left {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+      flex: 1;
+    }
+    .clp-thumb {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      object-fit: cover;
+      background: #1E293B;
+      flex-shrink: 0;
+    }
+    .clp-meta { min-width: 0; flex: 1; }
+    .clp-domain {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--brand-sky);
+      text-transform: uppercase;
+    }
+    .clp-title {
+      font-size: 0.77rem;
+      font-weight: 700;
+      color: var(--brand-navy);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .clp-desc {
+      font-size: 0.69rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #dismiss-clp-btn {
+      background: rgba(128, 128, 128, 0.2);
+      border: none;
+      color: var(--text-muted);
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      font-weight: 700;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    /* Long Text -> Send as .txt Prompt Bar */
+    #long-text-txt-bar {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: rgba(245, 158, 11, 0.16);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      color: #D97706;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    :root[data-theme="dark"] #long-text-txt-bar { color: #FBBF24; }
+    #long-text-txt-bar.active { display: flex; }
+    #send-as-txt-btn {
+      background: #D97706;
+      color: #fff;
+      border: none;
+      padding: 4px 11px;
+      border-radius: 9999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    #send-as-txt-btn:hover { background: #B45309; }
+
+    #file-preview {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--brand-sky-light);
+      color: var(--brand-navy);
+      padding: 7px 12px;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    #file-preview.active { display: flex; }
+    #file-preview span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 86%; }
+    #clear-file-btn {
+      background: rgba(239, 68, 68, 0.18);
+      border: none;
+      color: #EF4444;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #progress-box {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: var(--bg-canvas);
+      padding: 9px 12px;
+      border-radius: 16px;
+      border: 1px solid var(--border-soft);
+    }
+    #progress-box.active { display: flex; }
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.73rem;
+      color: var(--brand-navy);
+      font-family: monospace;
+      font-weight: 600;
+    }
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: var(--border-input);
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--brand-sky), var(--brand-green));
+      border-radius: 9999px;
+      transition: width 0.15s ease;
+    }
+    #cancel-upload-btn {
+      background: rgba(239, 68, 68, 0.18);
+      border: none;
+      color: #EF4444;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    form#send-form { display: flex; align-items: flex-end; gap: 8px; }
+    .attach-btn {
+      background: var(--bg-canvas);
+      border: 1px solid var(--border-input);
+      color: var(--brand-navy);
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      font-size: 1.1rem;
+    }
+    textarea#text-input {
+      flex: 1;
+      padding: 10px 16px;
+      border: 1px solid var(--border-input);
+      border-radius: 22px;
+      outline: none;
+      resize: none;
+      max-height: 100px;
+      min-height: 42px;
+      font-size: 0.9rem;
+      line-height: 1.35;
+      background: var(--bg-canvas);
+      color: var(--text-main);
+    }
+    textarea#text-input:focus { border-color: var(--brand-sky); background: var(--surface); }
+    button#send-btn {
+      background: linear-gradient(135deg, #0E5A9E 0%, #0088CC 100%);
+      color: #fff;
+      border: none;
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      box-shadow: 0 3px 10px rgba(0, 136, 204, 0.3);
+      transition: transform 0.12s ease;
+    }
+    button#send-btn svg {
+      display: block;
+      transform: translate(-1px, 1px);
+    }
+    button#send-btn:active { transform: scale(0.93); }
+    button#send-btn:disabled { background: #64748B; box-shadow: none; cursor: not-allowed; }
+
+    /* List Panels (Focused Topics & Active Users) */
+    .scroll-section {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .summary-banner {
+      background: linear-gradient(135deg, #0B3B68 0%, #134E88 100%);
+      color: #fff;
+      padding: 14px 18px;
+      border-radius: 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 14px rgba(11, 59, 104, 0.2);
+    }
+    :root[data-theme="dark"] .summary-banner {
+      background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+      border: 1px solid #23314A;
+    }
+    .summary-banner h3 { margin: 0 0 2px; font-size: 0.92rem; color: #fff; }
+    .summary-banner p { margin: 0; font-size: 0.73rem; color: #BAE6FD; }
+    .online-counter-pill {
+      background: #00A651;
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-weight: 800;
+      font-size: 0.84rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #fff;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(0.8); }
+    }
+
+    /* QR Bubble in Active Tab */
+    .qr-bubble-card {
+      background: var(--qr-bubble-bg);
+      border: 1.5px solid var(--qr-bubble-border);
+      border-radius: 22px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(0, 136, 204, 0.12);
+      transition: transform 0.12s ease, box-shadow 0.15s ease;
+    }
+    .qr-bubble-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 14px rgba(0, 136, 204, 0.2);
+    }
+    .qr-bubble-left { display: flex; align-items: center; gap: 11px; min-width: 0; }
+    .qr-bubble-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #0B3B68;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    :root[data-theme="dark"] .qr-bubble-icon { background: #0284C7; }
+    .qr-bubble-text strong {
+      display: block;
+      font-size: 0.88rem;
+      color: var(--brand-navy);
+    }
+    .qr-bubble-text span {
+      display: block;
+      font-size: 0.72rem;
+      color: var(--subbar-subtext);
+      font-family: monospace;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .qr-bubble-cta {
+      background: #0B3B68;
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    :root[data-theme="dark"] .qr-bubble-cta { background: #0284C7; }
+
+    .section-divider-label {
+      font-size: 0.73rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      padding: 4px 6px 0;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .primary-action-btn {
+      background: linear-gradient(135deg, #00A651 0%, #059669 100%);
+      color: #fff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 0.82rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(0, 166, 81, 0.25);
+    }
+
+    .card-item {
+      background: var(--surface);
+      border: 1px solid var(--border-soft);
+      border-radius: 20px;
+      padding: 13px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 2px 8px rgba(11, 59, 104, 0.05);
+    }
+    .card-item.clickable { cursor: pointer; transition: transform 0.12s ease, border-color 0.15s ease; }
+    .card-item.clickable:hover { border-color: var(--brand-sky); transform: translateY(-1px); }
+    .card-item.has-unread { border-color: #FCA5A5; }
+    .card-item.offline-card { opacity: 0.78; background: var(--surface-elevated); }
+
+    .user-info { display: flex; align-items: center; gap: 10px; }
+    .status-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: var(--brand-green);
+      box-shadow: 0 0 0 3px var(--brand-green-light);
+      flex-shrink: 0;
+    }
+    .status-dot.offline {
+      background: #94A3B8;
+      box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.25);
+    }
+    .ip-title { font-family: monospace; font-size: 0.92rem; font-weight: 700; color: var(--brand-navy); }
+    .sub-meta { font-size: 0.72rem; color: var(--text-muted); margin-top: 3px; line-height: 1.35; }
+    .unread-inline { color: var(--unread-red); font-weight: 700; }
+
+    .role-badge {
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .role-you { background: var(--brand-sky-light); color: var(--brand-blue); }
+    .role-admin { background: rgba(245, 158, 11, 0.18); color: #D97706; }
+    :root[data-theme="dark"] .role-admin { color: #FBBF24; }
+    .role-member { background: var(--brand-green-light); color: #16A34A; }
+    :root[data-theme="dark"] .role-member { color: #34D399; }
+    .role-offline { background: rgba(148, 163, 184, 0.2); color: var(--text-muted); }
+    .role-pending { background: rgba(245, 158, 11, 0.18); color: #D97706; }
+    :root[data-theme="dark"] .role-pending { color: #FBBF24; }
+    .role-request-alert {
+      background: #EF4444;
+      color: #fff;
+      font-size: 0.67rem;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      font-weight: 700;
+    }
+
+    /* Modals */
+    .modal-backdrop {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: rgba(3, 12, 28, 0.78);
+      backdrop-filter: blur(3px);
+      z-index: 60;
+      justify-content: center;
+      align-items: center;
+      padding: 18px;
+    }
+    .modal-backdrop.active { display: flex; }
+    .modal-card {
+      background: var(--surface);
+      border: 1px solid var(--border-soft);
+      border-radius: 26px;
+      padding: 20px;
+      width: 100%;
+      max-width: 390px;
+      max-height: 86dvh;
+      overflow-y: auto;
+      box-shadow: 0 18px 40px rgba(0, 10, 25, 0.45);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      color: var(--text-main);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-soft);
+      padding-bottom: 10px;
+    }
+    .modal-header h2 {
+      margin: 0;
+      font-size: 1rem;
+      color: var(--brand-navy);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .close-x {
+      background: var(--bg-canvas);
+      border: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .qr-credit {
+      font-size: 0.73rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      background: var(--bg-canvas);
+      padding: 5px 12px;
+      border-radius: 9999px;
+      display: inline-block;
+      margin: 0 auto;
+    }
+
+    .full-msg-body {
+      background: var(--bg-canvas);
+      border: 1px solid var(--border-soft);
+      border-radius: 16px;
+      padding: 12px 14px;
+      font-size: 0.88rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 52dvh;
+      overflow-y: auto;
+      color: var(--text-main);
+    }
+
+    #lightbox-image {
+      width: 100%;
+      max-height: 58dvh;
+      object-fit: contain;
+      border-radius: 14px;
+      background: #0F172A;
+    }
+
+    .form-field { display: flex; flex-direction: column; gap: 5px; }
+    .form-field label { font-size: 0.78rem; font-weight: 700; color: var(--brand-navy); }
+    .rounded-input, .rounded-select {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--border-input);
+      background: var(--bg-canvas);
+      color: var(--text-main);
+      font-size: 0.86rem;
+      outline: none;
+    }
+    .rounded-input:focus, .rounded-select:focus { border-color: var(--brand-sky); background: var(--surface); }
+
+    .checklist-box {
+      max-height: 150px;
+      overflow-y: auto;
+      border: 1px solid var(--border-soft);
+      border-radius: 16px;
+      padding: 8px;
+      background: var(--bg-canvas);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .check-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface);
+      padding: 7px 12px;
+      border-radius: 9999px;
+      font-size: 0.82rem;
+      font-family: monospace;
+      color: var(--text-main);
+      cursor: pointer;
+      gap: 6px;
+    }
+
+    .mini-btn {
+      border: none;
+      padding: 5px 11px;
+      border-radius: 9999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .mini-add { background: #00A651; color: #fff; }
+    .mini-join { background: #0E5A9E; color: #fff; }
+    .mini-join:hover { background: #0B3B68; }
+    .mini-kick { background: rgba(239, 68, 68, 0.16); color: #EF4444; }
+
+    .modal-footer { display: flex; gap: 8px; margin-top: 4px; }
+    .modal-footer button, .modal-footer a {
+      flex: 1;
+      padding: 10px;
+      border-radius: 9999px;
+      border: none;
+      font-weight: 700;
+      font-size: 0.82rem;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+    }
+    .btn-primary { background: #0B3B68; color: #fff; }
+    :root[data-theme="dark"] .btn-primary { background: #0284C7; }
+    .btn-green { background: #00A651; color: #fff; }
+    .btn-secondary { background: var(--bg-canvas); color: var(--text-muted); }
+
+    /* Toast Notification */
+    #toast {
+      position: absolute;
+      top: 72px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0B3B68;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+      z-index: 90;
+      display: none;
+      white-space: nowrap;
+      max-width: 90%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    :root[data-theme="dark"] #toast {
+      background: #1E293B;
+      border: 1px solid #38BDF8;
+    }
+  </style>
+</head>
+<body>
+  <div id="app-shell">
+    <!-- Main Header -->
+    <header>
+      <div class="brand-wrap">
+        <div class="brand-emblem" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            <line x1="8" y1="9" x2="16" y2="9"></line>
+            <line x1="8" y1="13" x2="13" y2="13"></line>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1 id="app-title">{{APP_TITLE}}</h1>
+          <small id="app-subtitle">{{APP_SUBTITLE}}</small>
+        </div>
+      </div>
+      <div class="header-right">
+        <span class="ip-pill" id="my-ip">...</span>
+        <button type="button" class="plus-icon-btn" id="open-plus-btn" title="Quick Actions" aria-label="Quick Actions">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+
+        <!-- Quick Action Popover -->
+        <div id="plus-popover">
+          <button type="button" class="popover-item" id="popover-create-topic">
+            <span>🎯</span> New Focused Topic
+          </button>
+          <button type="button" class="popover-item" id="popover-show-qr">
+            <span>📱</span> Access QR Code
+          </button>
+          <div class="popover-divider"></div>
+          <div class="theme-selector-row">
+            <span class="theme-selector-label">Appearance Theme</span>
+            <div class="theme-pills">
+              <button type="button" class="theme-opt-btn" data-theme-choice="auto">Auto</button>
+              <button type="button" class="theme-opt-btn" data-theme-choice="light">Light</button>
+              <button type="button" class="theme-opt-btn" data-theme-choice="dark">Dark</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div id="toast"></div>
+
+    <!-- Main Navigation -->
+    <div class="nav-bar-wrap">
+      <div class="nav-pills">
+        <button type="button" class="nav-tab active" data-tab="public">
+          🌐 Public <span class="tab-badge unread" id="badge-public" style="display:none;">0</span>
+        </button>
+        <button type="button" class="nav-tab" data-tab="topics">
+          🎯 Focused <span class="tab-badge unread" id="badge-topics" style="display:none;">0</span>
+        </button>
+        <button type="button" class="nav-tab" data-tab="users">
+          🟢 Active <span class="tab-badge" id="badge-online">0</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Sub-bar inside an Active Focused Topic Room -->
+    <div id="topic-subbar">
+      <div class="subbar-left">
+        <button type="button" class="back-pill" id="back-to-topics-btn">← Focused</button>
+        <div class="subbar-title">
+          <strong id="active-topic-name">Focused Topic Name</strong>
+          <span id="active-topic-meta">0 members • Expires 24h</span>
+        </div>
+      </div>
+      <button type="button" class="manage-pill" id="open-topic-settings-btn">⚙️ Manage</button>
+    </div>
+
+    <!-- VIEW 1: CHAT (Shared for Public & Focused Topic Rooms) -->
+    <div id="view-chat" class="view-panel active">
+      <div id="chat-box"></div>
+
+      <div class="composer-wrapper">
+        <div class="options-bar">
+          <div class="ttl-group" id="public-ttl-control">
+            <label for="ttl-select" class="ttl-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              Keep message:
+            </label>
+            <select id="ttl-select" class="pill-select">
+              <option value="5">5 Minutes</option>
+              <option value="15">15 Minutes</option>
+              <option value="60">1 Hour</option>
+              <option value="360">6 Hours</option>
+              <option value="720">12 Hours</option>
+              <option value="1440" selected>24 Hours (Max)</option>
+            </select>
+          </div>
+          <div id="topic-ttl-notice">
+            <span style="display:inline-flex;align-items:center;gap:5px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              <span id="topic-ttl-text">Keep message: 24 Hours</span>
+            </span>
+            <button type="button" class="link-btn" id="quick-edit-ttl-btn" style="display:none;">Edit</button>
+          </div>
+        </div>
+
+        <!-- Live Link Preview Thumbnail while typing -->
+        <div id="composer-link-preview">
+          <div class="clp-left">
+            <img id="clp-thumb" class="clp-thumb" src="" alt="Preview" referrerpolicy="no-referrer" style="display:none;">
+            <div class="clp-meta">
+              <div class="clp-domain" id="clp-domain"></div>
+              <div class="clp-title" id="clp-title"></div>
+              <div class="clp-desc" id="clp-desc"></div>
+            </div>
+          </div>
+          <button type="button" id="dismiss-clp-btn" title="Remove link thumbnail">✕</button>
+        </div>
+
+        <!-- Long Text -> Send as .txt option -->
+        <div id="long-text-txt-bar">
+          <span id="long-text-info">📄 Long text detected</span>
+          <button type="button" id="send-as-txt-btn">Send as .txt</button>
+        </div>
+
+        <div id="file-preview">
+          <span id="file-preview-name"></span>
+          <button type="button" id="clear-file-btn" title="Remove file">✕</button>
+        </div>
+
+        <div id="progress-box">
+          <div class="progress-info">
+            <span id="progress-text">Uploading... 0%</span>
+            <button type="button" id="cancel-upload-btn">Cancel</button>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+        </div>
+
+        <form id="send-form">
+          <input type="file" id="file-input" hidden>
+          <button type="button" class="attach-btn" id="attach-btn" title="Attach File">📎</button>
+          <textarea id="text-input" rows="1" placeholder="Type a message or paste text..."></textarea>
+          <button type="submit" id="send-btn" title="Send Message" aria-label="Send Message">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- VIEW 2: FOCUSED TOPICS LIST -->
+    <div id="view-topics" class="view-panel">
+      <div class="scroll-section">
+        <div class="summary-banner">
+          <div>
+            <h3>Focused Topics</h3>
+            <p>Private rooms • Auto-deleted when inactive</p>
+          </div>
+          <button type="button" class="primary-action-btn" id="open-create-topic-btn">+ Create</button>
+        </div>
+        <div id="topics-list" style="display:flex; flex-direction:column; gap:10px;"></div>
+      </div>
+    </div>
+
+    <!-- VIEW 3: ACTIVE USERS TAB -->
+    <div id="view-users" class="view-panel">
+      <div class="scroll-section">
+        <div class="summary-banner">
+          <div>
+            <h3>Connected Devices</h3>
+            <p>Automatically detected via local network IP</p>
+          </div>
+          <div class="online-counter-pill">
+            <span class="pulse-dot"></span>
+            <span id="total-online-text">0 Online</span>
+          </div>
+        </div>
+
+        <!-- QR Code Bubble in Active Menu -->
+        <div class="qr-bubble-card" id="active-qr-bubble">
+          <div class="qr-bubble-left">
+            <div class="qr-bubble-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+                <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+                <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+                <path d="M14 14h3v3h-3z"></path>
+                <path d="M20 14v3h-3"></path>
+                <path d="M14 20h3"></path>
+                <path d="M20 20h.01"></path>
+              </svg>
+            </div>
+            <div class="qr-bubble-text">
+              <strong>Invite via Access QR Code</strong>
+              <span id="active-qr-url-preview">Tap to scan & join on LAN</span>
+            </div>
+          </div>
+          <span class="qr-bubble-cta">Show QR</span>
+        </div>
+
+        <div id="active-users-list" style="display:flex; flex-direction:column; gap:10px;"></div>
+
+        <!-- Recently Disconnected (up to 2 hours) -->
+        <div id="disconnected-section" style="display:none; flex-direction:column; gap:10px;">
+          <div class="section-divider-label">Recently Disconnected (Last 2 Hours)</div>
+          <div id="disconnected-users-list" style="display:flex; flex-direction:column; gap:10px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: QR CODE ACCESS -->
+    <div id="qr-modal" class="modal-backdrop">
+      <div class="modal-card" style="text-align:center;">
+        <div class="modal-header">
+          <h2>Join from Another Device</h2>
+          <button type="button" class="close-x" data-close="qr-modal">✕</button>
+        </div>
+        <p style="margin:0; font-size:0.78rem; color:var(--text-muted);">Scan the QR code using your phone camera on the same Wi-Fi / LAN network</p>
+        <img id="qr-image" src="" alt="Access QR Code" style="width:200px; height:200px; margin:4px auto; border-radius:16px; border:1px solid var(--border-soft); background:#fff;">
+        <div id="qr-url-text" style="padding:9px 12px; background:var(--bg-canvas); border-radius:9999px; font-family:monospace; font-size:0.82rem; color:var(--brand-navy); font-weight:700; word-break:break-all;">-</div>
+        <div class="qr-credit">v0.1.0 • dibuat oleh stbdba</div>
+        <div class="modal-footer">
+          <button type="button" class="btn-primary" id="copy-url-btn">Copy Address</button>
+          <button type="button" class="btn-secondary" data-close="qr-modal">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: FULL LONG MESSAGE POP-UP -->
+    <div id="read-message-modal" class="modal-backdrop">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2 id="read-msg-title">Full Message</h2>
+          <button type="button" class="close-x" data-close="read-message-modal">✕</button>
+        </div>
+        <div style="font-size:0.73rem; color:var(--text-muted); font-family:monospace;" id="read-msg-meta">-</div>
+        <div class="full-msg-body" id="read-msg-content"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn-primary" id="copy-full-msg-btn">Copy Text</button>
+          <button type="button" class="btn-green" id="download-full-msg-txt-btn">Save .txt</button>
+          <button type="button" class="btn-secondary" data-close="read-message-modal">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: IMAGE LIGHTBOX PREVIEW -->
+    <div id="image-preview-modal" class="modal-backdrop">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2 id="lightbox-title">Image Preview</h2>
+          <button type="button" class="close-x" data-close="image-preview-modal">✕</button>
+        </div>
+        <img id="lightbox-image" src="" alt="Full Image Preview">
+        <div style="font-size:0.73rem; color:var(--text-muted); font-family:monospace; text-align:center;" id="lightbox-meta">-</div>
+        <div class="modal-footer">
+          <a id="lightbox-download-btn" class="btn-green" href="#" download>⬇ Download</a>
+          <button type="button" class="btn-secondary" data-close="image-preview-modal">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: CREATE NEW FOCUSED TOPIC -->
+    <div id="create-topic-modal" class="modal-backdrop">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2>Create Focused Topic</h2>
+          <button type="button" class="close-x" data-close="create-topic-modal">✕</button>
+        </div>
+
+        <div class="form-field">
+          <label for="new-topic-name">Focused Topic Name</label>
+          <input type="text" id="new-topic-name" class="rounded-input" placeholder="e.g. Field Team / Meeting Notes" maxlength="40">
+        </div>
+
+        <div class="form-field">
+          <label for="new-topic-inactivity">Focused Topic Expiration (After Last Active User)</label>
+          <select id="new-topic-inactivity" class="rounded-select">
+            <option value="15">15 Minutes of inactivity</option>
+            <option value="60">1 Hour of inactivity</option>
+            <option value="360">6 Hours of inactivity</option>
+            <option value="720">12 Hours of inactivity</option>
+            <option value="1440" selected>24 Hours of inactivity (Max)</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label for="new-topic-msg-ttl">Keep Message in Focused Topic</label>
+          <select id="new-topic-msg-ttl" class="rounded-select">
+            <option value="5">5 Minutes</option>
+            <option value="15">15 Minutes</option>
+            <option value="60">1 Hour</option>
+            <option value="360">6 Hours</option>
+            <option value="720">12 Hours</option>
+            <option value="1440" selected>24 Hours (Max)</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label>Add Members from Active Users (You are automatically Admin)</label>
+          <div id="create-topic-members-list" class="checklist-box"></div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" data-close="create-topic-modal">Cancel</button>
+          <button type="button" class="btn-primary" id="submit-create-topic-btn">Create Focused Topic</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: MANAGE / INFO FOCUSED TOPIC -->
+    <div id="topic-settings-modal" class="modal-backdrop">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2 id="settings-modal-title">Manage Focused Topic</h2>
+          <button type="button" class="close-x" data-close="topic-settings-modal">✕</button>
+        </div>
+
+        <div id="admin-settings-controls" style="display:flex; flex-direction:column; gap:12px;">
+          <!-- Pending Join Requests Section for Admin -->
+          <div class="form-field" id="admin-join-requests-section" style="display:none;">
+            <label style="color:#EF4444;">🔔 Pending Join Requests</label>
+            <div id="settings-join-requests-list" class="checklist-box"></div>
+          </div>
+
+          <div class="form-field">
+            <label for="edit-topic-inactivity">Focused Topic Expiration (After Last Activity)</label>
+            <select id="edit-topic-inactivity" class="rounded-select">
+              <option value="15">15 Minutes of inactivity</option>
+              <option value="60">1 Hour of inactivity</option>
+              <option value="360">6 Hours of inactivity</option>
+              <option value="720">12 Hours of inactivity</option>
+              <option value="1440">24 Hours of inactivity (Max)</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="edit-topic-msg-ttl">Keep Message in Focused Topic</label>
+            <select id="edit-topic-msg-ttl" class="rounded-select">
+              <option value="5">5 Minutes</option>
+              <option value="15">15 Minutes</option>
+              <option value="60">1 Hour</option>
+              <option value="360">6 Hours</option>
+              <option value="720">12 Hours</option>
+              <option value="1440">24 Hours (Max)</option>
+            </select>
+          </div>
+
+          <button type="button" class="primary-action-btn" id="save-topic-settings-btn">Save Settings</button>
+
+          <div class="form-field">
+            <label>Add User from Active List</label>
+            <div id="settings-add-users-list" class="checklist-box"></div>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label>Current Focused Topic Members</label>
+          <div id="settings-current-members-list" class="checklist-box"></div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" data-close="topic-settings-modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    // Theme Management (Auto browser default + manual override in Quick Actions)
+    const systemDarkMedia = window.matchMedia('(prefers-color-scheme: dark)');
+    let themePreference = localStorage.getItem('localchat_theme') || 'auto'; // 'auto' | 'light' | 'dark'
+
+    function applyTheme(pref) {
+      themePreference = ['auto', 'light', 'dark'].includes(pref) ? pref : 'auto';
+      localStorage.setItem('localchat_theme', themePreference);
+
+      const resolved = themePreference === 'auto'
+        ? (systemDarkMedia.matches ? 'dark' : 'light')
+        : themePreference;
+
+      document.documentElement.setAttribute('data-theme', resolved);
+
+      document.querySelectorAll('[data-theme-choice]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.themeChoice === themePreference);
+      });
+    }
+
+    applyTheme(themePreference);
+
+    systemDarkMedia.addEventListener('change', () => {
+      if (themePreference === 'auto') {
+        applyTheme('auto');
+      }
+    });
+
+    document.querySelectorAll('[data-theme-choice]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        applyTheme(btn.dataset.themeChoice);
+      });
+    });
+
+    // Constants
+    const COLLAPSE_CHAR_LIMIT = 320;
+    const COLLAPSE_LINE_LIMIT = 6;
+    const TXT_SUGGEST_CHAR_LIMIT = 240;
+    const TXT_SUGGEST_LINE_LIMIT = 5;
+
+    const IP_COLOR_PALETTE = [
+      '#E11D48', '#D97706', '#059669', '#0284C7',
+      '#7C3AED', '#DB2777', '#EA580C', '#0D9488',
+      '#2563EB', '#9333EA', '#16A34A', '#CA8A04',
+      '#4F46E5', '#BE123C', '#0369A1', '#6D28D9'
+    ];
+
+    // Application State
+    let baseTitle = document.getElementById('app-title').textContent.trim() || 'LocalChat';
+    let myIp = '';
+    let activeUsersState = { totalOnline: 0, users: [], recentDisconnected: [] };
+    let topicsMap = new Map();
+    let allMessages = [];
+    let unreadMsgIds = new Set();
+    let clientPreviewCache = new Map();
+    let dismissedPreviewUrl = '';
+    let livePreviewDebounceTimer = null;
+    let activeModalMessage = null;
+    let currentTab = 'public'; // 'public' | 'topics' | 'users'
+    let currentRoomId = 'global'; // 'global' | topicId
+    let currentXhr = null;
+
+    // DOM Elements
+    const ipBadge = document.getElementById('my-ip');
+    const toastEl = document.getElementById('toast');
+    const plusBtn = document.getElementById('open-plus-btn');
+    const plusPopover = document.getElementById('plus-popover');
+    const navTabs = document.querySelectorAll('.nav-tab');
+    const viewChat = document.getElementById('view-chat');
+    const viewTopics = document.getElementById('view-topics');
+    const viewUsers = document.getElementById('view-users');
+    const topicSubbar = document.getElementById('topic-subbar');
+    const chatBox = document.getElementById('chat-box');
+
+    const badgePublic = document.getElementById('badge-public');
+    const badgeTopics = document.getElementById('badge-topics');
+    const badgeOnline = document.getElementById('badge-online');
+
+    const publicTtlControl = document.getElementById('public-ttl-control');
+    const topicTtlNotice = document.getElementById('topic-ttl-notice');
+    const topicTtlText = document.getElementById('topic-ttl-text');
+    const quickEditTtlBtn = document.getElementById('quick-edit-ttl-btn');
+
+    const composerLinkPreview = document.getElementById('composer-link-preview');
+    const clpThumb = document.getElementById('clp-thumb');
+    const clpDomain = document.getElementById('clp-domain');
+    const clpTitle = document.getElementById('clp-title');
+    const clpDesc = document.getElementById('clp-desc');
+    const dismissClpBtn = document.getElementById('dismiss-clp-btn');
+
+    const longTextTxtBar = document.getElementById('long-text-txt-bar');
+    const longTextInfo = document.getElementById('long-text-info');
+    const sendAsTxtBtn = document.getElementById('send-as-txt-btn');
+
+    const form = document.getElementById('send-form');
+    const textInput = document.getElementById('text-input');
+    const fileInput = document.getElementById('file-input');
+    const attachBtn = document.getElementById('attach-btn');
+    const ttlSelect = document.getElementById('ttl-select');
+    const sendBtn = document.getElementById('send-btn');
+
+    const filePreview = document.getElementById('file-preview');
+    const filePreviewName = document.getElementById('file-preview-name');
+    const clearFileBtn = document.getElementById('clear-file-btn');
+
+    const progressBox = document.getElementById('progress-box');
+    const progressText = document.getElementById('progress-text');
+    const progressFill = document.getElementById('progress-fill');
+    const cancelUploadBtn = document.getElementById('cancel-upload-btn');
+
+    function applyBranding(title, subtitle) {
+      baseTitle = (title || 'LocalChat').trim() || 'LocalChat';
+      document.getElementById('app-title').textContent = baseTitle;
+      if (subtitle) {
+        document.getElementById('app-subtitle').textContent = subtitle;
+      }
+      updateBadges();
+    }
+
+    applyBranding(baseTitle, document.getElementById('app-subtitle').textContent.trim());
+
+    async function copyTextReliable(text) {
+      if (!text) return false;
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return true;
+        }
+      } catch {
+        // Fallback below
+      }
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        const ok = document.execCommand('copy');
+        ta.remove();
+        return ok;
+      } catch {
+        return false;
+      }
+    }
+
+    // Helpers
+    function showToast(msg) {
+      toastEl.textContent = msg;
+      toastEl.style.display = 'block';
+      clearTimeout(toastEl._timer);
+      toastEl._timer = setTimeout(() => { toastEl.style.display = 'none'; }, 3000);
+    }
+
+    function getIpColor(ip) {
+      let hash = 0;
+      const str = String(ip || '');
+      for (let i = 0; i < str.length; i++) {
+        hash = ((hash << 5) - hash) + str.charCodeAt(i);
+        hash |= 0;
+      }
+      return IP_COLOR_PALETTE[Math.abs(hash) % IP_COLOR_PALETTE.length];
+    }
+
+    function formatTime(ts) {
+      return new Date(ts).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+    }
+
+    function formatDurationLabel(mins) {
+      if (mins < 60) return `${mins} Min`;
+      const hrs = Math.round(mins / 60);
+      return `${hrs} ${hrs === 1 ? 'Hour' : 'Hours'}`;
+    }
+
+    function formatSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+      return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+    }
+
+    function isImageAttachment(file) {
+      if (!file) return false;
+      if (file.mimeType && file.mimeType.toLowerCase().startsWith('image/')) return true;
+      return /\.(jpe?g|png|gif|webp|svg|bmp|avif)$/i.test(file.originalName || '');
+    }
+
+    const URL_REGEX = /(https?:\/\/[^\s<>"']+)/gi;
+
+    function formatMessageTextWithLinks(rawText) {
+      const parts = rawText.split(URL_REGEX);
+      return parts.map(part => {
+        if (/^https?:\/\//i.test(part)) {
+          const cleanHref = part.replace(/[.,!?;:)]+$/, '');
+          const trailing = part.slice(cleanHref.length);
+          return `<a href="${escapeHtml(cleanHref)}" target="_blank" rel="noopener noreferrer">${escapeHtml(cleanHref)}</a>${escapeHtml(trailing)}`;
+        }
+        return escapeHtml(part);
+      }).join('');
+    }
+
+    function extractFirstUrl(rawText) {
+      if (!rawText) return null;
+      const match = rawText.match(URL_REGEX);
+      if (!match || !match[0]) return null;
+      return match[0].replace(/[.,!?;:)]+$/, '');
+    }
+
+    function isLongMessage(rawText) {
+      if (!rawText) return false;
+      const lineCount = rawText.split('\n').length;
+      return rawText.length > COLLAPSE_CHAR_LIMIT || lineCount > COLLAPSE_LINE_LIMIT;
+    }
+
+    function getCollapsedRawText(rawText) {
+      const lines = rawText.split('\n');
+      let truncated = lines.slice(0, COLLAPSE_LINE_LIMIT).join('\n');
+      if (truncated.length > COLLAPSE_CHAR_LIMIT) {
+        truncated = truncated.slice(0, COLLAPSE_CHAR_LIMIT);
+      }
+      return truncated.trimEnd() + '...';
+    }
+
+    async function fetchLinkPreviewData(url) {
+      if (clientPreviewCache.has(url)) {
+        return clientPreviewCache.get(url);
+      }
+      const res = await fetch(`/api/link-preview?url=${encodeURIComponent(url)}`);
+      if (!res.ok) return null;
+      const data = await res.json();
+      clientPreviewCache.set(url, data);
+      return data;
+    }
+
+    async function attachLinkPreview(containerEl, url) {
+      try {
+        const data = await fetchLinkPreviewData(url);
+        if (!data || (!data.image && !data.title && !data.description)) return;
+        if (!document.body.contains(containerEl)) return;
+
+        const card = document.createElement('a');
+        card.className = 'link-preview-card';
+        card.href = data.url || url;
+        card.target = '_blank';
+        card.rel = 'noopener noreferrer';
+
+        const imgHtml = data.image
+          ? `<img class="link-preview-thumb" src="${escapeHtml(data.image)}" alt="Thumbnail" referrerpolicy="no-referrer" loading="lazy" onerror="this.style.display='none'">`
+          : '';
+
+        card.innerHTML = `
+          ${imgHtml}
+          <div class="link-preview-body">
+            <span class="link-preview-domain">${escapeHtml(data.domain || '')}</span>
+            <span class="link-preview-title">${escapeHtml(data.title || url)}</span>
+            ${data.description ? `<span class="link-preview-desc">${escapeHtml(data.description)}</span>` : ''}
+          </div>
+        `;
+        containerEl.appendChild(card);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      } catch {
+        // Ignore preview errors
+      }
+    }
+
+    // Live Link Preview & Long Text Detection while typing
+    function hideComposerLinkPreview() {
+      composerLinkPreview.classList.remove('active');
+      clpThumb.style.display = 'none';
+      clpThumb.src = '';
+    }
+
+    function updateComposerHelpers() {
+      const raw = textInput.value;
+      const trimmed = raw.trim();
+      const lineCount = trimmed ? trimmed.split('\n').length : 0;
+
+      if (trimmed.length >= TXT_SUGGEST_CHAR_LIMIT || lineCount >= TXT_SUGGEST_LINE_LIMIT) {
+        longTextInfo.textContent = `📄 Long message (${trimmed.length} chars)`;
+        longTextTxtBar.classList.add('active');
+      } else {
+        longTextTxtBar.classList.remove('active');
+      }
+
+      const url = extractFirstUrl(raw);
+      if (!url) {
+        dismissedPreviewUrl = '';
+        clearTimeout(livePreviewDebounceTimer);
+        hideComposerLinkPreview();
+        return;
+      }
+
+      if (url === dismissedPreviewUrl) {
+        hideComposerLinkPreview();
+        return;
+      }
+
+      clearTimeout(livePreviewDebounceTimer);
+      livePreviewDebounceTimer = setTimeout(async () => {
+        try {
+          const data = await fetchLinkPreviewData(url);
+          if (!data || extractFirstUrl(textInput.value) !== url || dismissedPreviewUrl === url) {
+            return;
+          }
+          clpDomain.textContent = data.domain || '';
+          clpTitle.textContent = data.title || url;
+          clpDesc.textContent = data.description || '';
+          if (data.image) {
+            clpThumb.src = data.image;
+            clpThumb.style.display = 'block';
+          } else {
+            clpThumb.style.display = 'none';
+          }
+          composerLinkPreview.classList.add('active');
+        } catch {
+          hideComposerLinkPreview();
+        }
+      }, 450);
+    }
+
+    dismissClpBtn.addEventListener('click', () => {
+      const url = extractFirstUrl(textInput.value);
+      if (url) dismissedPreviewUrl = url;
+      hideComposerLinkPreview();
+    });
+
+    function closeAllMessageDropdowns(exceptEl = null) {
+      document.querySelectorAll('.msg-dropdown.active').forEach(menu => {
+        if (menu !== exceptEl) menu.classList.remove('active');
+      });
+    }
+
+    plusBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeAllMessageDropdowns();
+      plusPopover.classList.toggle('active');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!plusPopover.contains(e.target) && e.target !== plusBtn) {
+        plusPopover.classList.remove('active');
+      }
+      if (!e.target.closest('.msg-meta-right')) {
+        closeAllMessageDropdowns();
+      }
+    });
+
+    document.getElementById('popover-create-topic').addEventListener('click', () => {
+      plusPopover.classList.remove('active');
+      openCreateTopicModal();
+    });
+
+    document.getElementById('popover-show-qr').addEventListener('click', () => {
+      plusPopover.classList.remove('active');
+      document.getElementById('qr-modal').classList.add('active');
+    });
+
+    document.getElementById('active-qr-bubble').addEventListener('click', () => {
+      document.getElementById('qr-modal').classList.add('active');
+    });
+
+    // Unread & Admin Request Counter Logic
+    function getRoomUnreadCount(roomId) {
+      let count = 0;
+      for (const m of allMessages) {
+        if ((m.roomId || 'global') === roomId && unreadMsgIds.has(m.id)) {
+          count++;
+        }
+      }
+      return count;
+    }
+
+    function getTotalTopicsAlertCount() {
+      let total = 0;
+      for (const m of allMessages) {
+        const rId = m.roomId || 'global';
+        if (rId !== 'global' && topicsMap.has(rId) && unreadMsgIds.has(m.id)) {
+          total++;
+        }
+      }
+      // Include pending join requests for Focused Topics administered by myIp
+      for (const top of topicsMap.values()) {
+        if (top.adminIp === myIp && Array.isArray(top.pendingRequests)) {
+          total += top.pendingRequests.length;
+        }
+      }
+      return total;
+    }
+
+    function markRoomAsRead(roomId) {
+      for (const m of allMessages) {
+        if ((m.roomId || 'global') === roomId) {
+          unreadMsgIds.delete(m.id);
+        }
+      }
+      updateBadges();
+    }
+
+    function updateBadges() {
+      const pubUnread = getRoomUnreadCount('global');
+      badgePublic.textContent = pubUnread;
+      badgePublic.style.display = pubUnread > 0 ? 'inline-block' : 'none';
+
+      const topAlerts = getTotalTopicsAlertCount();
+      badgeTopics.textContent = topAlerts;
+      badgeTopics.style.display = topAlerts > 0 ? 'inline-block' : 'none';
+
+      badgeOnline.textContent = activeUsersState.totalOnline;
+
+      const totalAlerts = pubUnread + topAlerts;
+      document.title = totalAlerts > 0 ? `(${totalAlerts}) ${baseTitle}` : baseTitle;
+    }
+
+    // Tab Navigation
+    function switchTab(tab) {
+      currentTab = tab;
+      navTabs.forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
+
+      viewChat.classList.remove('active');
+      viewTopics.classList.remove('active');
+      viewUsers.classList.remove('active');
+
+      if (tab === 'public') {
+        currentRoomId = 'global';
+        markRoomAsRead('global');
+        topicSubbar.classList.remove('active');
+        publicTtlControl.style.display = 'flex';
+        topicTtlNotice.style.display = 'none';
+        viewChat.classList.add('active');
+        renderMessages();
+      } else if (tab === 'topics') {
+        const currentTopic = topicsMap.get(currentRoomId);
+        if (currentRoomId !== 'global' && currentTopic && currentTopic.members.includes(myIp)) {
+          openTopicRoom(currentRoomId);
+        } else {
+          currentRoomId = 'global';
+          topicSubbar.classList.remove('active');
+          viewTopics.classList.add('active');
+          renderTopicsList();
+        }
+      } else if (tab === 'users') {
+        topicSubbar.classList.remove('active');
+        viewUsers.classList.add('active');
+        renderActiveUsers();
+      }
+      updateBadges();
+    }
+
+    function openTopicRoom(topicId) {
+      const topic = topicsMap.get(topicId);
+      if (!topic || !topic.members.includes(myIp)) return switchTab('topics');
+
+      currentTab = 'topics';
+      currentRoomId = topicId;
+      markRoomAsRead(topicId);
+
+      navTabs.forEach(btn => btn.classList.toggle('active', btn.dataset.tab === 'topics'));
+      viewTopics.classList.remove('active');
+      viewUsers.classList.remove('active');
+      viewChat.classList.add('active');
+
+      topicSubbar.classList.add('active');
+      document.getElementById('active-topic-name').textContent = topic.name;
+      document.getElementById('active-topic-meta').textContent =
+        `${topic.members.length} members • Expires ${formatTime(topic.expiresAt)}`;
+
+      const isAdmin = topic.adminIp === myIp;
+      const reqCount = isAdmin && Array.isArray(topic.pendingRequests) ? topic.pendingRequests.length : 0;
+      document.getElementById('open-topic-settings-btn').textContent = isAdmin
+        ? (reqCount > 0 ? `⚙️ Manage (${reqCount})` : '⚙️ Manage')
+        : 'ℹ️ Info';
+
+      publicTtlControl.style.display = 'none';
+      topicTtlNotice.style.display = 'flex';
+      topicTtlText.textContent = `Keep message: ${formatDurationLabel(topic.messageTtlMinutes)}`;
+      quickEditTtlBtn.style.display = isAdmin ? 'inline' : 'none';
+
+      renderMessages();
+      updateBadges();
+    }
+
+    navTabs.forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (btn.dataset.tab === 'topics') {
+          currentRoomId = 'global';
+        }
+        switchTab(btn.dataset.tab);
+      });
+    });
+
+    document.getElementById('back-to-topics-btn').addEventListener('click', () => {
+      currentRoomId = 'global';
+      switchTab('topics');
+    });
+
+    // Full Message Pop-up Reader
+    function openReadMessageModal(msg) {
+      activeModalMessage = msg;
+      document.getElementById('read-msg-title').textContent =
+        msg.ip === myIp ? 'Message from You' : `Message from ${msg.ip}`;
+      document.getElementById('read-msg-meta').textContent =
+        `Sent ${formatTime(msg.timestamp)} • Expires ${formatTime(msg.expiresAt)} • ${msg.text.length} chars`;
+      document.getElementById('read-msg-content').textContent = msg.text;
+      document.getElementById('read-message-modal').classList.add('active');
+    }
+
+    document.getElementById('copy-full-msg-btn').addEventListener('click', async () => {
+      if (!activeModalMessage?.text) return;
+      const ok = await copyTextReliable(activeModalMessage.text);
+      showToast(ok ? 'Full message copied to clipboard!' : 'Unable to copy text.');
+    });
+
+    document.getElementById('download-full-msg-txt-btn').addEventListener('click', () => {
+      if (!activeModalMessage?.text) return;
+      const blob = new Blob([activeModalMessage.text], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `localchat-${activeModalMessage.id}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    // Image Lightbox Modal
+    function openImageLightbox(file) {
+      document.getElementById('lightbox-title').textContent = file.originalName;
+      document.getElementById('lightbox-image').src = file.url;
+      document.getElementById('lightbox-meta').textContent = `${formatSize(file.size)}`;
+      const dlBtn = document.getElementById('lightbox-download-btn');
+      dlBtn.href = file.url;
+      dlBtn.setAttribute('download', file.originalName);
+      document.getElementById('image-preview-modal').classList.add('active');
+    }
+
+    // Render Messages
+    function renderMessages() {
+      const now = Date.now();
+      const filtered = allMessages.filter(m => (m.roomId || 'global') === currentRoomId && now < m.expiresAt);
+      chatBox.innerHTML = '';
+
+      if (filtered.length === 0) {
+        chatBox.innerHTML = `<div class="empty-state">
+          No messages in this room yet.<br>Paste text or attach a file to share across the local network.
+        </div>`;
+        return;
+      }
+
+      filtered.forEach(msg => appendMessageElement(msg, false));
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function canUserDeleteMessage(msg) {
+      if (msg.ip === myIp) return true;
+      if (msg.roomId && msg.roomId !== 'global') {
+        const top = topicsMap.get(msg.roomId);
+        if (top && top.adminIp === myIp) return true;
+      }
+      return false;
+    }
+
+    function appendMessageElement(msg, autoScroll = true) {
+      const emptyEl = chatBox.querySelector('.empty-state');
+      if (emptyEl) emptyEl.remove();
+      if (document.getElementById(`msg-${msg.id}`)) return;
+
+      const isMine = msg.ip === myIp;
+      const div = document.createElement('div');
+      div.id = `msg-${msg.id}`;
+      div.className = `msg ${isMine ? 'mine' : ''}`;
+
+      const senderHtml = isMine
+        ? `<span>${escapeHtml(msg.ip)} (You)</span>`
+        : `<span class="sender-identity"><span class="sender-dot" style="background:${getIpColor(msg.ip)}"></span>${escapeHtml(msg.ip)}</span>`;
+
+      const canDelete = canUserDeleteMessage(msg);
+
+      const copyLabel = msg.text ? '📋 Copy Text' : '🔗 Copy File Link';
+      const downloadItemHtml = msg.file
+        ? `<a class="msg-dropdown-item" href="${msg.file.url}" download="${escapeHtml(msg.file.originalName)}">⬇️ Download</a>`
+        : '';
+      const deleteItemHtml = canDelete
+        ? `<button type="button" class="msg-dropdown-item danger" data-action="delete">🗑️ Delete</button>`
+        : '';
+
+      const collapsed = isLongMessage(msg.text);
+      const displayRawText = collapsed ? getCollapsedRawText(msg.text) : msg.text;
+
+      let attachmentHtml = '';
+      if (msg.file) {
+        if (isImageAttachment(msg.file)) {
+          attachmentHtml = `
+            <div class="wa-image-card">
+              <img class="wa-image-preview" src="${msg.file.url}" alt="${escapeHtml(msg.file.originalName)}" loading="lazy">
+              <div class="wa-image-footer">
+                <div class="wa-image-meta">
+                  <span class="wa-image-name">${escapeHtml(msg.file.originalName)}</span>
+                  <span class="wa-image-size">${formatSize(msg.file.size)}</span>
+                </div>
+                <a class="file-dl-btn" href="${msg.file.url}" download="${escapeHtml(msg.file.originalName)}">⬇ Download</a>
+              </div>
+            </div>
+          `;
+        } else {
+          attachmentHtml = `
+            <div class="file-card">
+              <div class="file-card-info">
+                <div class="file-card-icon">📄</div>
+                <div class="file-card-text">
+                  <span class="file-card-name">${escapeHtml(msg.file.originalName)}</span>
+                  <span class="file-card-size">${formatSize(msg.file.size)}</span>
+                </div>
+              </div>
+              <a class="file-dl-btn" href="${msg.file.url}" download="${escapeHtml(msg.file.originalName)}">⬇ Download</a>
+            </div>
+          `;
+        }
+      }
+
+      div.innerHTML = `
+        <div class="msg-header">
+          ${senderHtml}
+          <span class="msg-meta-right">
+            <span>${formatTime(msg.timestamp)} • Exp ${formatTime(msg.expiresAt)}</span>
+            <button type="button" class="msg-menu-btn" title="Message options" aria-label="Message options">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            <div class="msg-dropdown">
+              <button type="button" class="msg-dropdown-item" data-action="copy">${copyLabel}</button>
+              ${downloadItemHtml}
+              ${deleteItemHtml}
+            </div>
+          </span>
+        </div>
+        ${msg.text ? `<p class="msg-text">${formatMessageTextWithLinks(displayRawText)}</p>` : ''}
+        ${collapsed ? `<button type="button" class="read-more-btn">📖 Read full message</button>` : ''}
+        ${attachmentHtml}
+      `;
+
+      const menuBtn = div.querySelector('.msg-menu-btn');
+      const dropdown = div.querySelector('.msg-dropdown');
+      menuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        plusPopover.classList.remove('active');
+        closeAllMessageDropdowns(dropdown);
+        dropdown.classList.toggle('active');
+      });
+
+      div.querySelector('[data-action="copy"]').addEventListener('click', async (e) => {
+        e.stopPropagation();
+        dropdown.classList.remove('active');
+        const textToCopy = msg.text || (msg.file ? `${window.location.origin}${msg.file.url}` : '');
+        const ok = await copyTextReliable(textToCopy);
+        showToast(ok ? 'Copied to clipboard!' : 'Failed to copy.');
+      });
+
+      if (canDelete) {
+        div.querySelector('[data-action="delete"]').addEventListener('click', (e) => {
+          e.stopPropagation();
+          dropdown.classList.remove('active');
+          if (!confirm('Delete this message for everyone?')) return;
+          socket.emit('delete_message', { messageId: msg.id }, (res) => {
+            if (!res?.ok) {
+              showToast(res?.error || 'Failed to delete message.');
+            }
+          });
+        });
+      }
+
+      if (msg.file && isImageAttachment(msg.file)) {
+        div.querySelector('.wa-image-preview').addEventListener('click', () => {
+          openImageLightbox(msg.file);
+        });
+      }
+
+      if (collapsed) {
+        div.querySelector('.read-more-btn').addEventListener('click', () => {
+          openReadMessageModal(msg);
+        });
+      }
+
+      chatBox.appendChild(div);
+
+      const firstUrl = extractFirstUrl(msg.text);
+      if (firstUrl && !msg.disablePreview) {
+        attachLinkPreview(div, firstUrl);
+      }
+
+      if (autoScroll) chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // Render Focused Topics List (Joined + Available to Request Join)
+    function renderTopicsList() {
+      const container = document.getElementById('topics-list');
+      const allList = Array.from(topicsMap.values()).sort((a, b) => b.lastActivityAt - a.lastActivityAt);
+      container.innerHTML = '';
+
+      if (allList.length === 0) {
+        container.innerHTML = `<div class="empty-state">
+          No Focused Topics available yet.<br>Tap <strong>+ Create</strong> to start a new Focused Topic.
+        </div>`;
+        return;
+      }
+
+      const joinedTopics = allList.filter(t => t.members.includes(myIp));
+      const availableTopics = allList.filter(t => !t.members.includes(myIp));
+
+      if (joinedTopics.length > 0) {
+        const lbl = document.createElement('div');
+        lbl.className = 'section-divider-label';
+        lbl.textContent = 'Your Focused Topics';
+        container.appendChild(lbl);
+
+        joinedTopics.forEach(top => {
+          const isAdmin = top.adminIp === myIp;
+          const unread = getRoomUnreadCount(top.id);
+          const pendingCount = isAdmin && Array.isArray(top.pendingRequests) ? top.pendingRequests.length : 0;
+
+          const card = document.createElement('div');
+          card.className = `card-item clickable ${(unread > 0 || pendingCount > 0) ? 'has-unread' : ''}`;
+
+          const unreadMetaHtml = unread > 0
+            ? `<span class="unread-inline">${unread} unread ${unread === 1 ? 'message' : 'messages'}</span> • `
+            : '';
+
+          card.innerHTML = `
+            <div style="min-width:0;">
+              <div style="font-weight:700; color:var(--brand-navy); font-size:0.94rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                ${escapeHtml(top.name)}
+              </div>
+              <div class="sub-meta">
+                ${unreadMetaHtml}${top.members.length} members • Keep ${formatDurationLabel(top.messageTtlMinutes)} • Exp ${formatTime(top.expiresAt)}
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+              ${pendingCount > 0 ? `<span class="role-request-alert">🔔 ${pendingCount} Req</span>` : ''}
+              ${unread > 0 ? `<span class="tab-badge unread">${unread}</span>` : ''}
+              <span class="role-badge ${isAdmin ? 'role-admin' : 'role-member'}">${isAdmin ? 'Admin' : 'Member'}</span>
+            </div>
+          `;
+          card.addEventListener('click', () => openTopicRoom(top.id));
+          container.appendChild(card);
+        });
+      }
+
+      if (availableTopics.length > 0) {
+        const lbl = document.createElement('div');
+        lbl.className = 'section-divider-label';
+        lbl.textContent = 'Available Focused Topics';
+        container.appendChild(lbl);
+
+        availableTopics.forEach(top => {
+          const hasRequested = Array.isArray(top.pendingRequests) && top.pendingRequests.includes(myIp);
+          const card = document.createElement('div');
+          card.className = 'card-item';
+
+          const actionHtml = hasRequested
+            ? `<span class="role-badge role-pending">⏳ Requested</span>`
+            : `<button type="button" class="mini-btn mini-join">Request Join</button>`;
+
+          card.innerHTML = `
+            <div style="min-width:0;">
+              <div style="font-weight:700; color:var(--brand-navy); font-size:0.94rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                ${escapeHtml(top.name)}
+              </div>
+              <div class="sub-meta">
+                Admin: ${escapeHtml(top.adminIp)} • ${top.members.length} members • Exp ${formatTime(top.expiresAt)}
+              </div>
+            </div>
+            <div style="flex-shrink:0;">
+              ${actionHtml}
+            </div>
+          `;
+
+          if (!hasRequested) {
+            card.querySelector('.mini-join').addEventListener('click', () => {
+              socket.emit('topic_request_join', { topicId: top.id }, (res) => {
+                if (!res?.ok) {
+                  showToast(res?.error || 'Failed to request join.');
+                  return;
+                }
+                topicsMap.set(top.id, res.topic);
+                renderTopicsList();
+                showToast(`Join request sent to ${top.adminIp}`);
+              });
+            });
+          }
+
+          container.appendChild(card);
+        });
+      }
+    }
+
+    // Render Active & Recently Disconnected Users Tab
+    function renderActiveUsers() {
+      document.getElementById('total-online-text').textContent = `${activeUsersState.totalOnline} Online`;
+      const container = document.getElementById('active-users-list');
+      container.innerHTML = '';
+
+      activeUsersState.users.forEach(u => {
+        const isMe = u.ip === myIp;
+        const card = document.createElement('div');
+        card.className = 'card-item';
+        card.innerHTML = `
+          <div class="user-info">
+            <span class="status-dot"></span>
+            <div>
+              <div class="ip-title">${escapeHtml(u.ip)}</div>
+              <div class="sub-meta">Active since ${formatTime(u.connectedAt)} (${u.sessions} ${u.sessions === 1 ? 'session' : 'sessions'})</div>
+            </div>
+          </div>
+          <div>
+            ${isMe
+              ? `<span class="role-badge role-you">Your Device</span>`
+              : `<span class="role-badge role-member">Online</span>`
+            }
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      const disconnectedSection = document.getElementById('disconnected-section');
+      const disconnectedList = document.getElementById('disconnected-users-list');
+      const recent = activeUsersState.recentDisconnected || [];
+
+      if (recent.length === 0) {
+        disconnectedSection.style.display = 'none';
+        disconnectedList.innerHTML = '';
+      } else {
+        disconnectedSection.style.display = 'flex';
+        disconnectedList.innerHTML = '';
+        recent.forEach(u => {
+          const card = document.createElement('div');
+          card.className = 'card-item offline-card';
+          card.innerHTML = `
+            <div class="user-info">
+              <span class="status-dot offline"></span>
+              <div>
+                <div class="ip-title" style="color:var(--text-muted);">${escapeHtml(u.ip)}</div>
+                <div class="sub-meta">Disconnected at ${formatTime(u.disconnectedAt)}</div>
+              </div>
+            </div>
+            <div>
+              <span class="role-badge role-offline">Offline</span>
+            </div>
+          `;
+          disconnectedList.appendChild(card);
+        });
+      }
+    }
+
+    // Modal Helper
+    document.querySelectorAll('[data-close]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.getElementById(btn.dataset.close).classList.remove('active');
+      });
+    });
+
+    // Copy QR Address
+    document.getElementById('copy-url-btn').addEventListener('click', async () => {
+      const url = document.getElementById('qr-url-text').textContent;
+      if (!url || url === '-') return;
+      const ok = await copyTextReliable(url);
+      showToast(ok ? 'Access address copied to clipboard!' : `Copy manually: ${url}`);
+    });
+
+    // Create Focused Topic Modal
+    function openCreateTopicModal() {
+      document.getElementById('new-topic-name').value = '';
+      const checklist = document.getElementById('create-topic-members-list');
+      checklist.innerHTML = '';
+
+      const otherUsers = activeUsersState.users.filter(u => u.ip !== myIp);
+      if (otherUsers.length === 0) {
+        checklist.innerHTML = `<div style="font-size:0.78rem; color:var(--text-muted); text-align:center; padding:8px;">
+          No other users are online yet. Users can also request to join later.
+        </div>`;
+      } else {
+        otherUsers.forEach(u => {
+          const label = document.createElement('label');
+          label.className = 'check-row';
+          label.innerHTML = `
+            <span>🟢 ${escapeHtml(u.ip)}</span>
+            <input type="checkbox" value="${escapeHtml(u.ip)}">
+          `;
+          checklist.appendChild(label);
+        });
+      }
+      document.getElementById('create-topic-modal').classList.add('active');
+    }
+
+    document.getElementById('open-create-topic-btn').addEventListener('click', openCreateTopicModal);
+
+    document.getElementById('submit-create-topic-btn').addEventListener('click', () => {
+      const name = document.getElementById('new-topic-name').value.trim();
+      if (!name) return showToast('Focused Topic name cannot be empty.');
+
+      const inactivityTtlMinutes = document.getElementById('new-topic-inactivity').value;
+      const messageTtlMinutes = document.getElementById('new-topic-msg-ttl').value;
+      const checked = Array.from(document.querySelectorAll('#create-topic-members-list input:checked'))
+        .map(el => el.value);
+
+      socket.emit('create_topic', {
+        name,
+        inactivityTtlMinutes,
+        messageTtlMinutes,
+        members: checked
+      }, (res) => {
+        if (!res?.ok) return showToast(res?.error || 'Failed to create Focused Topic.');
+        document.getElementById('create-topic-modal').classList.remove('active');
+        topicsMap.set(res.topic.id, res.topic);
+        openTopicRoom(res.topic.id);
+        showToast(`Focused Topic "${res.topic.name}" created!`);
+      });
+    });
+
+    // Manage / Info Focused Topic Modal
+    function openTopicSettingsModal() {
+      const topic = topicsMap.get(currentRoomId);
+      if (!topic) return;
+
+      const isAdmin = topic.adminIp === myIp;
+      document.getElementById('settings-modal-title').textContent = isAdmin ? `Manage: ${topic.name}` : `Info: ${topic.name}`;
+      document.getElementById('admin-settings-controls').style.display = isAdmin ? 'flex' : 'none';
+
+      if (isAdmin) {
+        // Pending Join Requests
+        const reqSection = document.getElementById('admin-join-requests-section');
+        const reqList = document.getElementById('settings-join-requests-list');
+        const pending = topic.pendingRequests || [];
+
+        if (pending.length === 0) {
+          reqSection.style.display = 'none';
+          reqList.innerHTML = '';
+        } else {
+          reqSection.style.display = 'flex';
+          reqList.innerHTML = '';
+          pending.forEach(reqIp => {
+            const row = document.createElement('div');
+            row.className = 'check-row';
+            row.innerHTML = `
+              <span>🔔 ${escapeHtml(reqIp)}</span>
+              <div style="display:flex; gap:5px;">
+                <button type="button" class="mini-btn mini-add" data-decision="approve">✓ Approve</button>
+                <button type="button" class="mini-btn mini-kick" data-decision="decline">✕</button>
+              </div>
+            `;
+            row.querySelector('[data-decision="approve"]').addEventListener('click', () => {
+              socket.emit('topic_handle_join_request', { topicId: topic.id, targetIp: reqIp, approve: true }, (res) => {
+                if (res?.ok) {
+                  topicsMap.set(topic.id, res.topic);
+                  openTopicSettingsModal();
+                  showToast(`${reqIp} approved to join.`);
+                }
+              });
+            });
+            row.querySelector('[data-decision="decline"]').addEventListener('click', () => {
+              socket.emit('topic_handle_join_request', { topicId: topic.id, targetIp: reqIp, approve: false }, (res) => {
+                if (res?.ok) {
+                  topicsMap.set(topic.id, res.topic);
+                  openTopicSettingsModal();
+                  showToast(`Request from ${reqIp} declined.`);
+                }
+              });
+            });
+            reqList.appendChild(row);
+          });
+        }
+
+        document.getElementById('edit-topic-inactivity').value = String(topic.inactivityTtlMinutes);
+        document.getElementById('edit-topic-msg-ttl').value = String(topic.messageTtlMinutes);
+
+        const addBox = document.getElementById('settings-add-users-list');
+        addBox.innerHTML = '';
+        const candidates = activeUsersState.users.filter(u => !topic.members.includes(u.ip));
+
+        if (candidates.length === 0) {
+          addBox.innerHTML = `<div style="font-size:0.76rem; color:var(--text-muted); text-align:center; padding:6px;">
+            All online users are already in this Focused Topic.
+          </div>`;
+        } else {
+          candidates.forEach(u => {
+            const row = document.createElement('div');
+            row.className = 'check-row';
+            row.innerHTML = `
+              <span>🟢 ${escapeHtml(u.ip)}</span>
+              <button type="button" class="mini-btn mini-add">+ Add</button>
+            `;
+            row.querySelector('button').addEventListener('click', () => {
+              socket.emit('topic_add_member', { topicId: topic.id, targetIp: u.ip }, (res) => {
+                if (res?.ok) {
+                  topicsMap.set(topic.id, res.topic);
+                  openTopicSettingsModal();
+                  showToast(`${u.ip} added to Focused Topic.`);
+                }
+              });
+            });
+            addBox.appendChild(row);
+          });
+        }
+      }
+
+      const membersBox = document.getElementById('settings-current-members-list');
+      membersBox.innerHTML = '';
+      const onlineSet = new Set(activeUsersState.users.map(u => u.ip));
+
+      topic.members.forEach(memberIp => {
+        const isTopicAdmin = memberIp === topic.adminIp;
+        const isOnline = onlineSet.has(memberIp);
+        const row = document.createElement('div');
+        row.className = 'check-row';
+
+        let actionHtml = '';
+        if (isTopicAdmin) {
+          actionHtml = `<span class="role-badge role-admin">Admin</span>`;
+        } else if (isAdmin) {
+          actionHtml = `<button type="button" class="mini-btn mini-kick">Kick</button>`;
+        } else {
+          actionHtml = `<span class="role-badge role-member">Member</span>`;
+        }
+
+        row.innerHTML = `
+          <span>${isOnline ? '🟢' : '⚪'} ${escapeHtml(memberIp)}</span>
+          ${actionHtml}
+        `;
+
+        if (!isTopicAdmin && isAdmin) {
+          row.querySelector('button').addEventListener('click', () => {
+            socket.emit('topic_remove_member', { topicId: topic.id, targetIp: memberIp }, (res) => {
+              if (res?.ok) {
+                topicsMap.set(topic.id, res.topic);
+                openTopicSettingsModal();
+                showToast(`${memberIp} removed from Focused Topic.`);
+              }
+            });
+          });
+        }
+        membersBox.appendChild(row);
+      });
+
+      document.getElementById('topic-settings-modal').classList.add('active');
+    }
+
+    document.getElementById('open-topic-settings-btn').addEventListener('click', openTopicSettingsModal);
+    quickEditTtlBtn.addEventListener('click', openTopicSettingsModal);
+
+    document.getElementById('save-topic-settings-btn').addEventListener('click', () => {
+      const topic = topicsMap.get(currentRoomId);
+      if (!topic) return;
+
+      const inactivityTtlMinutes = document.getElementById('edit-topic-inactivity').value;
+      const messageTtlMinutes = document.getElementById('edit-topic-msg-ttl').value;
+
+      socket.emit('topic_update_settings', {
+        topicId: topic.id,
+        inactivityTtlMinutes,
+        messageTtlMinutes
+      }, (res) => {
+        if (res?.ok) {
+          topicsMap.set(topic.id, res.topic);
+          openTopicRoom(topic.id);
+          document.getElementById('topic-settings-modal').classList.remove('active');
+          showToast('Focused Topic settings updated.');
+        }
+      });
+    });
+
+    // Socket Events
+    socket.on('init', (data) => {
+      applyBranding(data.appTitle, data.appSubtitle);
+
+      myIp = data.yourIp;
+      ipBadge.textContent = myIp;
+
+      if (data.qrDataUrl) {
+        document.getElementById('qr-image').src = data.qrDataUrl;
+        document.getElementById('qr-url-text').textContent = data.accessUrl;
+        document.getElementById('active-qr-url-preview').textContent = data.accessUrl;
+      }
+
+      activeUsersState = data.activeUsers || { totalOnline: 0, users: [], recentDisconnected: [] };
+      topicsMap.clear();
+      (data.topics || []).forEach(t => topicsMap.set(t.id, t));
+      allMessages = data.messages || [];
+
+      unreadMsgIds.clear();
+      allMessages.forEach(m => {
+        const rId = m.roomId || 'global';
+        const isViewing =
+          (rId === 'global' && currentTab === 'public') ||
+          (rId !== 'global' && currentTab === 'topics' && currentRoomId === rId);
+        if (!isViewing && m.ip !== myIp) {
+          unreadMsgIds.add(m.id);
+        }
+      });
+
+      updateBadges();
+      if (currentTab === 'users') renderActiveUsers();
+      else if (currentTab === 'topics' && currentRoomId === 'global') renderTopicsList();
+      else renderMessages();
+    });
+
+    socket.on('active_users_update', (data) => {
+      activeUsersState = {
+        totalOnline: data.totalOnline || 0,
+        users: data.users || [],
+        recentDisconnected: data.recentDisconnected || []
+      };
+      updateBadges();
+      if (currentTab === 'users') renderActiveUsers();
+      if (document.getElementById('topic-settings-modal').classList.contains('active')) {
+        openTopicSettingsModal();
+      }
+    });
+
+    socket.on('new_message', (msg) => {
+      if (!allMessages.some(m => m.id === msg.id)) {
+        allMessages.push(msg);
+      }
+      const targetRoom = msg.roomId || 'global';
+      const isViewingRoom =
+        (targetRoom === 'global' && currentTab === 'public') ||
+        (targetRoom !== 'global' && currentTab === 'topics' && currentRoomId === targetRoom);
+
+      if (isViewingRoom) {
+        appendMessageElement(msg, true);
+      } else {
+        unreadMsgIds.add(msg.id);
+        updateBadges();
+        if (currentTab === 'topics' && currentRoomId === 'global') {
+          renderTopicsList();
+        }
+      }
+    });
+
+    socket.on('message_deleted', ({ messageId }) => {
+      allMessages = allMessages.filter(m => m.id !== messageId);
+      unreadMsgIds.delete(messageId);
+      const el = document.getElementById(`msg-${messageId}`);
+      if (el) el.remove();
+      if (activeModalMessage?.id === messageId) {
+        document.getElementById('read-message-modal').classList.remove('active');
+        activeModalMessage = null;
+      }
+      updateBadges();
+      if (currentTab === 'topics' && currentRoomId === 'global') {
+        renderTopicsList();
+      }
+    });
+
+    socket.on('messages_expired', (ids) => {
+      const idSet = new Set(ids);
+      allMessages = allMessages.filter(m => !idSet.has(m.id));
+      ids.forEach(id => {
+        unreadMsgIds.delete(id);
+        const el = document.getElementById(`msg-${id}`);
+        if (el) el.remove();
+      });
+      updateBadges();
+      if (currentTab === 'topics' && currentRoomId === 'global') {
+        renderTopicsList();
+      }
+    });
+
+    socket.on('topic_created', (topic) => {
+      topicsMap.set(topic.id, topic);
+      updateBadges();
+      if (currentTab === 'topics' && currentRoomId === 'global') renderTopicsList();
+      if (topic.adminIp !== myIp && topic.members.includes(myIp)) {
+        showToast(`You were added to Focused Topic "${topic.name}"`);
+      }
+    });
+
+    socket.on('topic_join_requested', ({ topicName, requesterIp }) => {
+      showToast(`${requesterIp} requested to join "${topicName}"`);
+      if (document.getElementById('topic-settings-modal').classList.contains('active')) {
+        openTopicSettingsModal();
+      }
+    });
+
+    socket.on('topic_join_declined', ({ topicName }) => {
+      showToast(`Your request to join "${topicName}" was declined.`);
+    });
+
+    socket.on('topic_invited', ({ topic, messages: topMsgs, fromRequest }) => {
+      topicsMap.set(topic.id, topic);
+      const existingIds = new Set(allMessages.map(m => m.id));
+      topMsgs.forEach(m => {
+        if (!existingIds.has(m.id)) allMessages.push(m);
+        if (currentRoomId !== topic.id) {
+          unreadMsgIds.add(m.id);
+        }
+      });
+      updateBadges();
+      if (currentTab === 'topics' && currentRoomId === 'global') renderTopicsList();
+      showToast(fromRequest
+        ? `Join request approved for "${topic.name}"!`
+        : `You were added to Focused Topic "${topic.name}"`
+      );
+    });
+
+    socket.on('topic_updated', (topic) => {
+      topicsMap.set(topic.id, topic);
+      updateBadges();
+      if (currentTab === 'topics') {
+        if (currentRoomId === topic.id) {
+          document.getElementById('active-topic-meta').textContent =
+            `${topic.members.length} members • Expires ${formatTime(topic.expiresAt)}`;
+          topicTtlText.textContent = `Keep message: ${formatDurationLabel(topic.messageTtlMinutes)}`;
+          const isAdmin = topic.adminIp === myIp;
+          const reqCount = isAdmin && Array.isArray(topic.pendingRequests) ? topic.pendingRequests.length : 0;
+          document.getElementById('open-topic-settings-btn').textContent = isAdmin
+            ? (reqCount > 0 ? `⚙️ Manage (${reqCount})` : '⚙️ Manage')
+            : 'ℹ️ Info';
+        } else {
+          renderTopicsList();
+        }
+      }
+      if (document.getElementById('topic-settings-modal').classList.contains('active') && currentRoomId === topic.id) {
+        openTopicSettingsModal();
+      }
+    });
+
+    socket.on('topic_messages_synced', ({ topicId, messages: syncedMsgs }) => {
+      const validIds = new Set(syncedMsgs.map(m => m.id));
+      allMessages.forEach(m => {
+        if (m.roomId === topicId && !validIds.has(m.id)) {
+          unreadMsgIds.delete(m.id);
+        }
+      });
+      allMessages = allMessages.filter(m => m.roomId !== topicId).concat(syncedMsgs);
+      updateBadges();
+      if (currentTab === 'topics' && currentRoomId === topicId) {
+        renderMessages();
+      } else if (currentTab === 'topics' && currentRoomId === 'global') {
+        renderTopicsList();
+      }
+    });
+
+    socket.on('kicked_from_topic', ({ topicId, topicName }) => {
+      allMessages.forEach(m => {
+        if (m.roomId === topicId) unreadMsgIds.delete(m.id);
+      });
+      allMessages = allMessages.filter(m => m.roomId !== topicId);
+      updateBadges();
+      showToast(`You were removed from Focused Topic "${topicName}"`);
+      if (currentRoomId === topicId) {
+        currentRoomId = 'global';
+        switchTab('topics');
+      } else if (currentTab === 'topics') {
+        renderTopicsList();
+      }
+    });
+
+    socket.on('topic_expired', ({ topicId, topicName }) => {
+      const wasMember = topicsMap.get(topicId)?.members.includes(myIp);
+      topicsMap.delete(topicId);
+      allMessages.forEach(m => {
+        if (m.roomId === topicId) unreadMsgIds.delete(m.id);
+      });
+      allMessages = allMessages.filter(m => m.roomId !== topicId);
+      updateBadges();
+      if (wasMember) {
+        showToast(`Focused Topic "${topicName}" has expired.`);
+      }
+      if (currentRoomId === topicId) {
+        currentRoomId = 'global';
+        switchTab('topics');
+      } else if (currentTab === 'topics') {
+        renderTopicsList();
+      }
+    });
+
+    // Input & File Upload
+    textInput.addEventListener('input', () => {
+      textInput.style.height = 'auto';
+      textInput.style.height = Math.min(textInput.scrollHeight, 100) + 'px';
+      updateComposerHelpers();
+    });
+
+    textInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey && window.innerWidth >= 520) {
+        e.preventDefault();
+        form.dispatchEvent(new Event('submit'));
+      }
+    });
+
+    attachBtn.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length > 0) {
+        const f = fileInput.files[0];
+        filePreviewName.textContent = `📎 ${f.name} (${formatSize(f.size)})`;
+        filePreview.classList.add('active');
+      } else {
+        filePreview.classList.remove('active');
+      }
+    });
+
+    clearFileBtn.addEventListener('click', () => {
+      fileInput.value = '';
+      filePreview.classList.remove('active');
+    });
+
+    function transmitMessage(textVal, fileObj) {
+      if (!textVal && !fileObj) return;
+
+      const firstUrl = extractFirstUrl(textVal);
+      const shouldDisablePreview = Boolean(firstUrl && dismissedPreviewUrl === firstUrl);
+
+      const formData = new FormData();
+      formData.append('roomId', currentRoomId);
+      formData.append('text', textVal);
+      formData.append('ttl', ttlSelect.value);
+      formData.append('disablePreview', shouldDisablePreview ? 'true' : 'false');
+      if (fileObj) formData.append('file', fileObj);
+
+      sendBtn.disabled = true;
+      attachBtn.disabled = true;
+      sendAsTxtBtn.disabled = true;
+
+      if (fileObj) {
+        progressBox.classList.add('active');
+        progressFill.style.width = '0%';
+        progressText.textContent = `Uploading... 0% (0 / ${formatSize(fileObj.size)})`;
+      }
+
+      const xhr = new XMLHttpRequest();
+      currentXhr = xhr;
+      xhr.open('POST', '/api/messages', true);
+
+      xhr.upload.addEventListener('progress', (event) => {
+        if (event.lengthComputable && fileObj) {
+          const percent = Math.round((event.loaded / event.total) * 100);
+          progressFill.style.width = percent + '%';
+          progressText.textContent = `Uploading... ${percent}% (${formatSize(event.loaded)} / ${formatSize(event.total)})`;
+        }
+      });
+
+      xhr.onload = () => {
+        resetUploadUI();
+        if (xhr.status >= 200 && xhr.status < 300) {
+          textInput.value = '';
+          textInput.style.height = 'auto';
+          fileInput.value = '';
+          filePreview.classList.remove('active');
+          longTextTxtBar.classList.remove('active');
+          dismissedPreviewUrl = '';
+          hideComposerLinkPreview();
+        } else {
+          showToast('Failed to send message/file.');
+        }
+      };
+
+      xhr.onerror = () => {
+        resetUploadUI();
+        showToast('Connection lost while uploading.');
+      };
+
+      xhr.onabort = () => resetUploadUI();
+      xhr.send(formData);
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      transmitMessage(textInput.value.trim(), fileInput.files[0]);
+    });
+
+    // Send long typed message directly as a .txt file
+    sendAsTxtBtn.addEventListener('click', () => {
+      const textVal = textInput.value.trim();
+      if (!textVal) return;
+      const now = new Date();
+      const stamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}-${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
+      const txtBlob = new Blob([textVal], { type: 'text/plain;charset=utf-8' });
+      const txtFile = new File([txtBlob], `message-${stamp}.txt`, { type: 'text/plain' });
+      transmitMessage('', txtFile);
+    });
+
+    cancelUploadBtn.addEventListener('click', () => {
+      if (currentXhr) currentXhr.abort();
+    });
+
+    function resetUploadUI() {
+      currentXhr = null;
+      sendBtn.disabled = false;
+      attachBtn.disabled = false;
+      sendAsTxtBtn.disabled = false;
+      progressBox.classList.remove('active');
+      progressFill.style.width = '0%';
+    }
+  </script>
+</body>
+</html>
