@@ -17,3 +17,25 @@ A lightweight, self-hosted Docker web application for instant text and file shar
 - **Mobile-First Portrait UI & Adaptive Theme:** Centered portrait layout on desktop, full viewport on mobile, and automatic Light/Dark mode matching browser preferences (with manual toggle).
 
 ---
+
+## Quick Start
+
+### Option 1: Docker Compose (Recommended)
+
+1. Download or copy [`docker-compose.yml`](docker-compose.yml) into a new folder on your host machine.
+2. *(Optional)* Set `QR_URL` in `docker-compose.yml` to your host machine's LAN IP and port (e.g., `http://192.168.1.10:3000`) so the QR code points directly to the accessible network address.
+3. Start the container:
+   ```bash
+   docker compose up -d
+
+### Option 2: Docker CLI
+
+docker run -d \
+  --name localchat \
+  --restart unless-stopped \
+  -p 3000:80 \
+  -e APP_TITLE="LocalChat" \
+  -e APP_SUBTITLE="Local Network Communication" \
+  -e QR_URL="[http://192.168.1.10:3000](http://192.168.1.10:3000)" \
+  -v localchat_uploads:/app/uploads \
+  stbdba/localchat:0.1.0
