@@ -38,4 +38,4 @@ docker run -d \
   -e APP_SUBTITLE="Local Network Communication" \
   -e QR_URL="[http://192.168.1.10:3000](http://192.168.1.10:3000)" \
   -v localchat_uploads:/app/uploads \
-  stbdba/localchat:0.1.0
+  stbdba/localchat:latest
