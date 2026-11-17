@@ -1,6 +1,6 @@
 services:
   localchat:
-    image: stbdba/localchat:0.1.0
+    image: stbdba/localchat:latest
     container_name: localchat
     restart: unless-stopped
     ports:
