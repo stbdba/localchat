@@ -4,7 +4,7 @@ services:
     container_name: localchat
     restart: unless-stopped
     ports:
-      - "3000:80"
+      - "9614:80"
     environment:
       - PORT=80
       - APP_TITLE=LocalChat
